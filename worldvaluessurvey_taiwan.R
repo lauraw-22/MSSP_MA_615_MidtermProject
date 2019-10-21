@@ -1,0 +1,112 @@
+library("readxl")
+library(tidyverse)
+library(GPArotation)
+library(psych)
+# read data use file.choose
+#tw_test<- read_excel(file.choose())
+# read text data
+tw_text<- read_excel("data/F00007687_WV6_Data_Taiwan_2012_Excel_v20180912_text.xlsx")
+# read num data
+tw_num<- read_excel("data/F00007625_WV6_Data_Taiwan_2012_Excel_v20180912_num.xlsx")
+# data select-selected questions and gender column
+tw_select <- select(tw_num,5:12,24,62,161:163,306:308,309)
+# column name
+tw_select_col <- colnames(tw_select)
+tw_select_col_copy <- tw_select_col
+# split comlumn name 
+tw_select_col_code <- str_split_fixed(tw_select_col_copy , ": ", 2)[,1]
+
+# replace column name make it easy to use in filter function
+tw_select_col <- str_replace_all(tw_select_col,": ","_")
+tw_select_col <- str_replace_all(tw_select_col," ","_")
+colnames(tw_select) <- tw_select_col_code
+# summary data to see wrong data
+summary(tw_select)
+# Delect wrong data--- response as -1 or -2
+tw_select_clean <- tw_select %>%  filter_all(all_vars(.>0))
+# summary tw_select_clean to see if still have invalid data
+summary(tw_select_clean)
+# select data for factor analysis
+tw_select_fa <- select(tw_select_clean,1:16)
+
+##Correlation matrix
+twMatrix <- cor(tw_select_fa)
+
+## Barlett's test 
+cortest.bartlett(tw_select_fa)
+# For these data, Bartlett’s test is highly signicant,therefore factor analysis is appropriate.
+
+det(twMatrix)
+# This value is greater than the necessary value of 0.00001. As such, our
+# determinant does not seem problematic.
+
+# Parallel Analysis
+parallel <- fa.parallel(tw_select_fa,fm='minres',fa='fa')
+
+
+threefactor <- fa(tw_select_fa,nfactors = 3,rotate = "oblimin",fm="minres")
+print(threefactor)
+
+fourfactor <- fa(tw_select_fa,nfactors = 4,rotate =
+                     "oblimin",fm="minres")
+print(fourfactor)
+print(fourfactor$loadings,cutoff = 0.3)
+
+
+fivefactor <- fa(tw_select_fa,nfactors = 5,rotate =
+                     "oblimin",fm="minres")
+print(fivefactor)
+print(fivefactor$loadings,cutoff = 0.3)
+
+# The root mean square of residuals (RMSR) is 0.04. This is acceptable as this value should be closer to 0.
+# Next we should check RMSEA (root mean square error of approximation) index. Its value, 0.043 shows
+# good model fit as it’s below 0.05. Finally, the Tucker-Lewis Index (TLI) is 0.91 – an acceptable value
+# considering it’s over 0.9. 
+
+
+fa.diagram(fivefactor)
+
+alpha(x=tw_select_fa,check.keys=TRUE)
+
+# Vnum-name 
+tw_select_vname <- as_tibble(str_split_fixed(tw_select_col_copy , ": ", 2))
+tw_select_vname
+
+
+###----Plot----###
+
+tw_select_all <- select(tw_num,5:12,24,62,161:163,306:308,309)
+
+colnames(tw_select_all) <- tw_select_col
+
+tw_select_all
+
+colnames(tw_select_all)
+
+##Plot 1 different gender response to V4-V9-significant of Important_in_life
+
+tw_select_all$V240_Sex <- factor(tw_select_all$V240_Sex,levels = c(1,2),labels = c("male","female")) 
+
+testdf <- tw_select_all%>%select(1:4,V240_Sex)%>%
+    pivot_longer(cols = 1:4,names_to = "Question",values_to = "answer") %>%
+    filter(answer>=0)
+
+ggplot(testdf)+
+    aes(x = answer,fill = V240_Sex)+
+    geom_bar(position = "dodge")+facet_wrap(as.factor(testdf$Question),ncol = 2)
+
+
+
+
+
+
+
+
+
+# ggplot(data = tw_select_all) + aes(fill=V240_Sex)+
+#     geom_bar(aes(x = V4_Important_in_life_Family))+
+#     coord_cartesian(xlim=c(0,4))+geom_bar(aes(x = V5_Important_in_life_Friends))
+
+# rename column name of the selected data
+# colnames(tw_select) <- c("V4","V5","V6","V7","V8","V9","V10","V11","V23","V59","V140","V141","V142","V237","V238","V239","V240")
+# str_split_fixed(colno_name$tw_select_col, ": ", 2)
