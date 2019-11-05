@@ -10,6 +10,7 @@
 library(shiny)
 library(shinydashboard)
 library(plotly)
+library(tidyverse)
 set.seed(2019)
 tw_select_all$V240_Sex <- factor(tw_select_all$V240_Sex,levels = c(1,2),labels = c("male","female"))
 testdf <- tw_select_all%>%select(1:4,V240_Sex)%>%

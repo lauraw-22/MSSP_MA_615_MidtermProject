@@ -2,7 +2,7 @@
 title: "Midterm_Project_TW_Survey"
 author: "Laura Wang"
 date: "10/21/2019"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
