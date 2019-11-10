@@ -19,6 +19,19 @@ tw_num<- read_excel("./data/F00007625_WV6_Data_Taiwan_2012_Excel_v20180912_num.x
 
 tw_select_all <- select(tw_num,5:12,24,62,161:163,306:308,309)
 
+tw_select <- select(tw_num,5:12,24,62,161:163,306:308,309)
+# column name
+tw_select_col <- colnames(tw_select)
+tw_select_col_copy <- tw_select_col
+# split comlumn name 
+tw_select_col_code <- str_split_fixed(tw_select_col_copy , ": ", 2)[,1]
+
+# replace column name make it easy to use in filter function
+tw_select_col <- str_replace_all(tw_select_col,": ","_")
+tw_select_col <- str_replace_all(tw_select_col," ","_")
+colnames(tw_select) <- tw_select_col_code
+
+
 colnames(tw_select_all) <- tw_select_col
 
 set.seed(2019)
