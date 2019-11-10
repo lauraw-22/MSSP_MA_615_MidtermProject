@@ -13,7 +13,8 @@ library(tidyverse)
 library(GPArotation)
 library(psych)
 ```
-
+## World Values Survey : Taiwan
+- data source: http://www.worldvaluessurvey.org/wvs.jsp
 
 ## Import Data in TW_Survey
 
