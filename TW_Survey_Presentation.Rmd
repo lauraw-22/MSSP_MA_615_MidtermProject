@@ -1,7 +1,6 @@
 ---
 title: "615_Midterm_Project"
 author: "Laura_Wang"
-date: "10/21/2019"
 output: ioslides_presentation
 ---
 
